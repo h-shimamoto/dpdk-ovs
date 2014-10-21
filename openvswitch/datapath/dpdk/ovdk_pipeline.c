@@ -495,6 +495,17 @@ ovdk_pipeline_port_in_add(uint32_t vportid, char *vport_name)
 	}
 
 	/*
+	 * Set the port name regardless of whether the previous port state
+	 * is first use or used before.
+	 */
+	if ((ret = ovdk_vport_set_port_name(vportid, vport_name))) {
+		RTE_LOG(WARNING, APP, "Unable to set vport name for in-port '%u'"
+		        " [pipeline '%s']\n", vportid,
+		        ovdk_pipeline[lcore_id].params.name);
+		return ret;
+	}
+
+	/*
 	 * Check if the vport_state is never used or failed. If so then create
 	 * the required port_in params, create port_in, set the vport_id and
 	 * connect the port to the table. This is only required if a port has
@@ -543,17 +554,6 @@ ovdk_pipeline_port_in_add(uint32_t vportid, char *vport_name)
 				ovdk_pipeline[lcore_id].params.name);
 			return ret;
 		}
-	}
-
-	/*
-	 * Set the port name regardless of whether the previous port state
-	 * is first use or used before.
-	 */
-	if ((ret = ovdk_vport_set_port_name(vportid, vport_name))) {
-		RTE_LOG(WARNING, APP, "Unable to set vport name for in-port '%u'"
-		        " [pipeline '%s']\n", vportid,
-		        ovdk_pipeline[lcore_id].params.name);
-		return ret;
 	}
 
 	/*
