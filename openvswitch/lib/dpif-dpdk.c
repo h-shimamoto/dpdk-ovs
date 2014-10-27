@@ -149,7 +149,6 @@ static int flow_message_del_create(struct ovdk_flow_message *request,
                                     const struct nlattr *key, size_t key_len);
 static void create_action_set_datapath(struct ovdk_action *dpif_actions,
                            const struct nlattr *actions, const int actions_index);
-static int memnic_rename_shm_object(uint32_t vportid, const char *port_name);
 
 static inline bool is_valid_pipeline(unsigned pipeline_id);
 static int next_available_pipeline(unsigned *last_used);
@@ -514,35 +513,6 @@ dpif_dpdk_ofport_type(enum ovdk_vport_type type, char *vport_type)
 };
 
 static int
-memnic_rename_shm_object(uint32_t vportid, const char *port_name)
-{
-    char old_name[PATH_MAX];
-    char new_name[PATH_MAX];
-
-    /* Remove any old shm object with the same port name. Ignore ENOENT error
-     * (No such file or directory) meaning that the shm object didn't exist
-     * in the first place */
-    if (shm_unlink(port_name) < 0 && errno != ENOENT) {
-        VLOG_ERR("Could not unlink previous shm object '%s'\n", port_name);
-        return errno;
-    }
-
-    /* Calculate names of old shm (created in datapath) and new shm name
-     * from the port name */
-    snprintf(old_name, sizeof(old_name), MEMNIC_SHM_NAME_FMT, vportid);
-    snprintf(new_name, sizeof(new_name), "%s/%s", SHM_DIR, port_name);
-
-    /* Do the shm object renaming */
-    if (rename(old_name, new_name) < 0) {
-        VLOG_ERR("Could not rename shm object '%s' to '%s'\n",
-                old_name, new_name);
-        return errno;
-    }
-
-    return 0;
-}
-
-static int
 dpif_dpdk_port_add(struct dpif *dpif_, struct netdev *netdev,
                    odp_port_t *port_no)
 {
@@ -675,11 +645,6 @@ dpif_dpdk_port_add(struct dpif *dpif_, struct netdev *netdev,
 
     /* Only set *port_no if port has been successfully added */
     *port_no = vportid;
-
-    if (request.type == OVDK_VPORT_TYPE_MEMNIC) {
-        error = memnic_rename_shm_object(reply.vportid,
-                                         netdev_get_name(netdev));
-    }
 
     if (unlikely(error)) {
         VLOG_ERR("Unable to add port '%u' to "
