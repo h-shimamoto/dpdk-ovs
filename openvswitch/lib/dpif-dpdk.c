@@ -239,25 +239,36 @@ del_port(odp_port_t port_no, unsigned max_pipeline)
     int initial_error = 0;
     unsigned i = 0;
     unsigned lcore_id = 0;
+    enum ovdk_vport_type vport_type = OVDK_VPORT_TYPE_DISABLED;
 
     dpif_dpdk_vport_msg_init(&request);
     request.cmd = OVS_VPORT_CMD_DEL;
     request.vportid = port_no;
 
-    /* Delete the port's IN port component */
-    request.flags = VPORT_FLAG_IN_PORT;
-    error = dpif_dpdk_vport_table_entry_get_lcore_id(port_no, &lcore_id);
+    /* Check that the port type is not a bridge, a bridge port only
+     * consists of an OUT component. We should not attempt to remove
+     * an IN component for a bridge port.
+     */
+    error = dpif_dpdk_vport_table_entry_get_type(port_no, &vport_type);
     if (error) {
-        VLOG_ERR("IN port '%"PRIu32"' is not associated with a datapath core",
-                 port_no);
-        initial_error = error;
+        return -error;
     }
-    error = dpif_dpdk_vport_transact(&request, lcore_id, NULL);
-    if (error) {
-        /* Flag the error, but don't return the error code yet */
-        VLOG_ERR("Failed to remove IN port '%"PRIu32"' from pipeline %u.",
-                  port_no, lcore_id);
-        TEST_AND_SET(&initial_error, error);
+    if(vport_type != OVDK_VPORT_TYPE_BRIDGE) {
+        /* Delete the port's IN port component */
+        request.flags = VPORT_FLAG_IN_PORT;
+        error = dpif_dpdk_vport_table_entry_get_lcore_id(port_no, &lcore_id);
+        if (error) {
+            VLOG_ERR("IN port '%"PRIu32"' is not associated with a datapath core",
+                     port_no);
+            initial_error = error;
+        }
+        error = dpif_dpdk_vport_transact(&request, lcore_id, NULL);
+        if (error) {
+            /* Flag the error, but don't return the error code yet */
+            VLOG_ERR("Failed to remove IN port '%"PRIu32"' from pipeline %u.",
+                      port_no, lcore_id);
+            TEST_AND_SET(&initial_error, error);
+        }
     }
 
     /* Delete the port's OUT port component */
@@ -611,10 +622,10 @@ dpif_dpdk_port_add(struct dpif *dpif_, struct netdev *netdev,
 
     request.vportid = vportid;
 
-    /* Currently bridge ports are only out ports */
-    if (request.type == OVDK_VPORT_TYPE_BRIDGE) {
-        request.flags = VPORT_FLAG_OUT_PORT;
-    } else {
+    /* Currently bridge ports are only out ports, do not request an in port
+     * for a type bridge.
+     */
+    if (request.type != OVDK_VPORT_TYPE_BRIDGE) {
         request.flags = VPORT_FLAG_IN_PORT;
     }
 
@@ -626,37 +637,39 @@ dpif_dpdk_port_add(struct dpif *dpif_, struct netdev *netdev,
      * only needs to be added to the pipeline assigned to handle inbound
      * traffic for that port.
      */
-    /* In port */
-    error = dpif_dpdk_vport_transact(&request, pipeline_id, &reply);
-    if (error) {
-        /* Reset table entry here if datapath fails to add port */
-        dpif_dpdk_vport_table_entry_reset(vportid);
-        VLOG_ERR("Unable to successfully add IN/OUT port to datapath, "
-                 "error '%d'", error);
-        return error;
+    /* In port, check that in port flag is set before transacting */
+    if (request.flags == VPORT_FLAG_IN_PORT) {
+        error = dpif_dpdk_vport_transact(&request, pipeline_id, &reply);
+        if (error) {
+            /* Reset table entry here if datapath fails to add port */
+            dpif_dpdk_vport_table_entry_reset(vportid);
+            VLOG_ERR("Unable to successfully add IN port to datapath, "
+                     "error '%d'", error);
+            return error;
+        }
     }
 
-    VLOG_DBG("Added vportid '%d' as IN port (or bridge port, if applicable) "
-             "to pipeline '%d'", vportid, pipeline_id);
+    VLOG_DBG("Added vportid '%d' as IN port to pipeline '%d'", vportid, pipeline_id);
 
-    if (request.type != OVDK_VPORT_TYPE_BRIDGE) {
-        /* Modify message and add output ports to available datapath pipelines */
-        request.flags = VPORT_FLAG_OUT_PORT;
-        for (i = min_pipeline_id; i <= max_pipeline_id; i++) {
-            if (is_valid_pipeline(i)) {
-                /* If an error is encountered, delete all previously-added
-                 * instances of this port from the appropriate datapath
-                 * pipelines.
-                 */
-                error = dpif_dpdk_vport_transact(&request, i, &reply);
-                if (unlikely(error)) {
-                    del_port(vportid, max_out_port);
-                    VLOG_ERR("Unable to successfully add out port to datapath "
-                             "on pipeline '%u', error '%d'", i, error);
-                    return error;
-                }
-                max_out_port = i;
+    /* Modify message and add output ports to available datapath pipelines.
+     * Adding a bridge port is handled here.
+     */
+    request.flags = VPORT_FLAG_OUT_PORT;
+    for (i = min_pipeline_id; i <= max_pipeline_id; i++) {
+        if (is_valid_pipeline(i)) {
+            /* If an error is encountered, delete all previously-added
+             * instances of this port from the appropriate datapath
+             * pipelines.
+             */
+            error = dpif_dpdk_vport_transact(&request, i, &reply);
+            if (unlikely(error)) {
+                del_port(vportid, max_out_port);
+                VLOG_ERR("Unable to successfully add out port to datapath "
+                         "on pipeline '%u', error '%d'", i, error);
+                return error;
             }
+            max_out_port = i;
+            VLOG_DBG("Added vportid '%d' as OUT port to pipeline '%d'", vportid, i);
         }
     }
 
