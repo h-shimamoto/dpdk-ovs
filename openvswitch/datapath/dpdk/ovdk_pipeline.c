@@ -625,6 +625,14 @@ ovdk_pipeline_port_out_add(uint32_t vportid)
 	}
 
 	/*
+	 * At this point the bridge port status is OVDK_VPORT_STATE_NEVER_USED
+	 * as only OUT ports are added.
+	 */
+	if ((OVDK_VPORT_TYPE_BRIDGE <= vportid && vportid < OVDK_VPORT_TYPE_VETH) &&
+	        (prev_state == OVDK_VPORT_STATE_NEVER_USED))
+		prev_state = OVDK_VPORT_STATE_IN_USE_FIRST_USE;
+
+	/*
 	 * Check if the prev_state is in_use_first_use. If so then
 	 * create required port_out params, create port_out and set the vport
 	 * port out id. This is only required if this is the first time a port
