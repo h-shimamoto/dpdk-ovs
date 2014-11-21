@@ -216,7 +216,7 @@ void
 test_ovdk_stats_port_out_update( int argc OVS_UNUSED, char *argv[] OVS_UNUSED)
 {
 	struct rte_mbuf *unused = NULL;
-	uint64_t pkts_mask = NULL;
+	uint64_t pkts_mask = 0;
 	unsigned vportid = OVDK_MAX_VPORTS - 1;
 
 	ovdk_stats_init();
