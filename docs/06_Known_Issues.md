@@ -53,6 +53,11 @@ ______
 
     For example, `dpdk_nic_bind.py -b igb_uio <PCI ID of NIC port>` binds the NIC to the Intel® DPDK igb_uio driver.
 
+* Issue present in some kernels (3.15.7 to 3.16.6 inclusive): When an RFC2544 throughput test is run on the setup described in [vHost Sample Configurations][doc-vhost-setup], using 2 guests, it shows excessive packet loss, even at low throughput. This degradation in performance was introduced on these kernels by the commit ```6daca6a55794bd21f51a643c064417e56f581d31```.
+
+ There are two potential solutions for this issue:
+  * Configuring your setup with ports which interact together (such as PHY RX and vHost TX) on the same core should improve RFC2544 throughput.
+  * Upgrading the kernel to 3.16.7 may help but is not guaranteed to resolve the issue. A fresh OS install with either the 3.16.7 kernel or the 3.15.6 kernel is best. Downgrading from a kernel where the issue is present has not been proven as a solution.
 ______
 
 ## Intel® DPDK vSwitch Sample Guest Application
@@ -104,3 +109,4 @@ ______
 © 2014, Intel Corporation. All Rights Reserved
 
 [ovdk-issues]: https://github.com/01org/dpdk-ovs/issues
+[doc-vhost-setup]: 04_Sample_Configurations/02_Userspace-vHost.md
