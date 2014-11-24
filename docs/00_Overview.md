@@ -1,6 +1,6 @@
 [Intel® DPDK vSwitch][dpdk-ovs-github] is a fork of the open source Open vSwitch multilayer virtual switch found at [openvswitch.org][ovs].
 
-Intel® and Wind River teams re-created the kernel forwarding module (data plane) by building the switching logic on top of the Intel® DPDK library to significantly boost packet switching throughput. The Forwarding engine incorporates Intel® DPDK Huge Page Tables. The Open vSwitch control daemon is modified to connect to Intel® DPDK Huge Page Tables. The forwarding module runs in Linux user space with BSD license rights. Intel® DPDK vSwitch implements a subset of the switching functionality of Open vSwitch.
+Intel® and Wind River teams re-created the kernel forwarding module (data plane) by building the switching logic on top of the Intel® DPDK library to significantly boost packet switching throughput. The forwarding engine incorporates Intel® DPDK Huge Page Tables. The Open vSwitch control daemon is modified to connect to Intel® DPDK Huge Page Tables. The forwarding module runs in Linux user space with BSD license rights. Intel® DPDK vSwitch implements a subset of the switching functionality of Open vSwitch.
 
 ______
 
@@ -20,16 +20,16 @@ ____
 
 ### Inter Virtual Machine Communication Methods
 
-Intel® DPDK vSwitch currently provides two methods of communicating from guest-to-host.
+Intel® DPDK vSwitch currently provides two methods of communicating between guest and host.
 
 #### IVSHMEM
 
 **Suggested use case:** Virtual Appliance running Linux with an Intel® DPDK based application.
 
-* Zero copy between guest and switch
+* Zero copy between guest and switch.
 * Option when applications are trusted and highest small packet throughput required.
-* Option when applications do not need the Linux network stack
-* Opportunity to add VM to VM security through additional buffer allocation (via `memcpy`)
+* Option when applications do not need the Linux network stack.
+* Opportunity to add VM to VM security through additional buffer allocation (via `memcpy`).
 
 #### Userspace vHost
 
@@ -43,7 +43,7 @@ Intel® DPDK vSwitch currently provides two methods of communicating from guest-t
 
 ### Open vSwitch Datapath Features
 
-Only a subset of the OpenFlow actions implemented in the original Open Source Open vSwitch application are currently supported by Intel® DPDK vSwitch.
+Only a subset of the OpenFlow actions implemented in the original open source Open vSwitch application are currently supported by Intel® DPDK vSwitch.
 
 Currently, the following are supported:
 
@@ -66,17 +66,17 @@ ______
 
 ### QEMU
 
-QEMU 1.6.2 has been modified by adding a modified Inter-VM Shared Memory (IVSHMEM) PCI device that allows for an Intel® DPDK hugepage to be shared with an Intel® DPDK application in the guest. This allows for very fast zero-copy communication with the accelerated Open vSwitch. This code can be found in `qemu/hw/misc/ivshmem.c`
+QEMU 1.6.2 has been modified by adding a modified Inter-VM Shared Memory (IVSHMEM) PCI device that allows for an Intel® DPDK hugepage to be shared with an Intel® DPDK application in the guest. This allows for very fast zero-copy communication with the accelerated Open vSwitch. This code can be found in `qemu/hw/misc/ivshmem.c`.
 
 ### Open vSwitch
 
-Open vSwitch 2.0 has been modified adding a user-space dpif provider accelerated by the Intel® DPDK. This code is provided in `openvswitch/datapath/dpdk/`.
+Open vSwitch 2.1.2 has been modified, adding a user-space dpif provider accelerated by the Intel® DPDK. This code is provided in `openvswitch/datapath/dpdk/`.
 
 ______
 
 ## Guest Applications
 
-* `ovs_client` application: Sample application to demonstrate ivshmem method. This code is provided in `guest/ovs_client`
+* `ovs_client` application: Sample application to demonstrate IVSHMEM method. This code is provided in `guest/ovs_client`.
 
 More detailed information can be found in the [Sample Applications][doc-sample-apps] section.
 

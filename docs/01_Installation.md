@@ -169,7 +169,7 @@ default_hugepagesz=2M hugepagesz=2M hugepages=2048
 
 Following this, it will be necessary to reboot your device. Please do so before continuing.
 
-Please note that Intel® DPDK vSwitch requires hugepages in order to run. If your device does not support these, Intel® DPDK vSwitch will be unable to execute. You can check support using the [Intel® ARK Tool][intel-ark]
+Please note that Intel® DPDK vSwitch requires hugepages in order to run. If your device does not support these, Intel® DPDK vSwitch will be unable to execute. You can check support using the [Intel® ARK Tool][intel-ark].
 
 ### Create Required Directories
 

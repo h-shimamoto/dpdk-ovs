@@ -53,7 +53,7 @@ ______
 
 ## Userspace vHost Tuning
 
-As vHost has small buffers it can be heavily affected by packet drops. To help mitigate this, you can change the number of times the vHost port will retry before dropping. You may also need to change the number of retries which the application in the guest will attempt as well as the host ovs-dpdk application's values.
+As vHost has small buffers it can be heavily affected by packet drops. To help mitigate this, you can change the number of times the userspace vHost port will retry before dropping. You may also need to change the number of retries which the application in the guest will attempt as well as the host ovs-dpdk application's values.
 
 
 ###On The Host

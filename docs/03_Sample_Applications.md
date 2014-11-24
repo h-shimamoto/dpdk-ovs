@@ -19,7 +19,7 @@ The EAL parameters are fully documented in the [*Intel® Data Plane Development 
 After the EAL arguments, the following application-specific arguments are supported:
 
 * `-p <client port name>`
-  Name of a `CLIENT` port to bind to
+  Name of a `CLIENT` port to bind to.
 
 ### Example Command
 

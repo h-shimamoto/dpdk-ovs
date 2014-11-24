@@ -38,7 +38,7 @@ mkdir -p /usr/local/etc/openvswitch/
 rm -f /tmp/conf.db
 ```
 
-Configure some environment variables
+Configure some environment variables:
 
 ```bash
 cd openvswitch

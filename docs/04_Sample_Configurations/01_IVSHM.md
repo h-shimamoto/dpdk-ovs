@@ -54,7 +54,7 @@ mkdir -p /usr/local/etc/openvswitch/
 rm -f /tmp/conf.db
 ```
 
-Configure some environment variables
+Configure some environment variables:
 
 ```bash
 cd openvswitch
@@ -152,7 +152,7 @@ ______
 
 ### Copy Files
 
-Copy files over the VM making sure the `-L` flag is used within `cp` to follow the symlinks.
+Copy files over to the VM making sure the `-L` flag is used within `cp` to follow the symlinks.
 
 ```bash
 rm -rf /tmp/qemu_share
@@ -200,7 +200,7 @@ ______
 
 ### Copy Files
 
-Login to the VM and copy across the files
+Login to the VM and copy across the files.
 
 ```bash
 mkdir -p /mnt/ovs
@@ -221,9 +221,14 @@ make install T=x86_64-ivshmem-linuxapp-gcc
 ```
 
 ### Mount/Enable Hugepages on the Guest
+```bash
 mkdir -p /dev/hugepages
 sudo mount -t hugetlbfs nodev /dev/hugepages
-echo 1024 > /sys/kernel/mm/hugepages/hugepages-2048/nr_hugepages [Assuming that hugepages haven't been enabled in the guest's kernel boot parameters]
+```
+Assuming that hugepages haven't been enabled in the guest's kernel boot parameters:
+```bash
+echo 1024 > /sys/kernel/mm/hugepages/hugepages-2048/nr_hugepages
+```
 
 ### Build `ovs_client` app
 

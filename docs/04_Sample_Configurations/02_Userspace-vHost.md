@@ -100,7 +100,7 @@ mkdir -p /usr/local/etc/openvswitch/
 rm -f /tmp/conf.db
 ```
 
-Configure some environment variables
+Configure some environment variables:
 
 ```bash
 cd openvswitch
@@ -221,7 +221,7 @@ cp -aL <DPDK_DIR>/* /tmp/qemu_share/DPDK
 
 ## Create VM
 
-**Note:** QEMU will fail if `ovdk-dpdk` is not already running. The following command line will launch QEMU with two vhost enabled virtio devices. It is important to note that the tap device names should be **identical** to the ovdk-dpdk port names:
+**Note:** QEMU will fail if `ovs-dpdk` is not already running. The following command line will launch QEMU with two vhost enabled virtio devices. It is important to note that the tap device names should be **identical** to the ovs-dpdk port names:
 
 ```bash
 ./qemu/x86_64-softmmu/qemu-system-x86_64 -cpu host -boot c                   \
@@ -277,7 +277,7 @@ make
 
 ### Insert `igb_uio` Module and Bind Devices
 
-Once everything has been build, insert the `igb_uio` driver:
+Once everything has been built, insert the `igb_uio` driver:
 
 ```bash
 modprobe uio
