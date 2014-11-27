@@ -1,14 +1,19 @@
-# v1.2 - TBD
+# v1.2 - November 2014
 
 - Updated to use Intel(R) DPDK 1.7.1
 - Datapath:
   - Added DPI support
   - Added Jumbo Frame Support
   - Re-added vEth support. This effectively re-adds OFTest support
+  - Re-enabled the jobs system
   - Bug fixes
-- OVS
+- OVS:
   - Convert 'openvswitch' folder to a subtree
   - Upgrade from 2.0.0 to 2.1.2
+- Logs:
+  - Increased debug and error logging
+  - Added command line support for adjusting log levels
+  - Added logging of NIC level stats
 
 # v1.1 - August 2014
 
