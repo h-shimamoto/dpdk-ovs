@@ -170,7 +170,7 @@ You should see something like this:
 Start `ovs-dpdk`:
 
 ```bash
-./datapath/dpdk/build/ovs-dpdk -c 0x0F -n 4 --proc-type primary \
+./datapath/dpdk/ovs-dpdk -c 0x0F -n 4 --proc-type primary \
   --base-virtaddr=<virt_addr> --socket-mem 2048,2048 -- \
   --stats_core=0 --stats_int=5 -p 0x03
 ```

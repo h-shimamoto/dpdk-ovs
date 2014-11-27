@@ -58,7 +58,7 @@ Before compiling, extract the source files for Intel® DPDK and Intel® DPDK vSw
 mkdir ~/ovs_dpdk
 cd ~/ovs_dpdk
 mkdir ovdk
-unzip <dpdk_release_pkg>.tar.gz
+tar -xzvf <dpdk_release_pkg>.tar.gz
 tar -xvzf <dpdk_vswitch_release_pkg>.tar.gz -C ovdk
 mv <dpdk_extract_dir> DPDK
 ```

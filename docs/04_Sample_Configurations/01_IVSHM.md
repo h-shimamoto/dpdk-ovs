@@ -117,14 +117,14 @@ You should see something like this:
 Start `ovs-dpdk`:
 
 ```bash
-./datapath/dpdk/build/ovs-dpdk -c 0x0F -n 4 --proc-type primary \
+./datapath/dpdk/ovs-dpdk -c 0x0F -n 4 --proc-type primary \
   --base-virtaddr=<virt_addr> -- --stats_core=0 --stats_int=5 -p 0x03
 ```
 
 Start the Open vSwitch daemon:
 
 ```bash
-./ovs-vswitchd -c 0x100 --proc-type=secondary -- --pidfile=/tmp/vswitchd.pid
+./vswitchd/ovs-vswitchd -c 0x100 --proc-type=secondary -- --pidfile=/tmp/vswitchd.pid
 ```
 
 ______
@@ -185,6 +185,8 @@ APP: QEMU cmdline for metadata 'vm_1': -device ivshmem,size=4M,shm=fd:/dev/
 Start QEMU with the metadata created above, for example:
 
 ```bash
+cd ../
+
 ./qemu/x86_64-softmmu/qemu-system-x86_64 -cpu host -boot c                   \
    -hda <qemu_imagename.qcow2> -snapshot -m 8192M -smp 2                     \
   --enable-kvm -name 'client 1' -nographic -vnc :1 -pidfile /tmp/vm1.pid     \

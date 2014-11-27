@@ -194,13 +194,13 @@ Add four vEth ports to the bridge:
 
 ```bash
 ./utilities/ovs-vsctl add-br br0 -- set Bridge br0 datapath_type=dpdk
-./utilities/ovs-vsctl add-port br0 myport64 --set Interface myport64
+./utilities/ovs-vsctl add-port br0 myport64 -- set Interface myport64
   type=dpdkveth ofport_request=64
-./utilities/ovs-vsctl add-port br0 myport65 --set Interface myport65
+./utilities/ovs-vsctl add-port br0 myport65 -- set Interface myport65
   type=dpdkveth ofport_request=65
-./utilities/ovs-vsctl add-port br0 myport66 --set Interface myport66
+./utilities/ovs-vsctl add-port br0 myport66 -- set Interface myport66
   type=dpdkveth ofport_request=66
-./utilities/ovs-vsctl add-port br0 myport67 --set Interface myport67
+./utilities/ovs-vsctl add-port br0 myport67 -- set Interface myport67
   type=dpdkveth ofport_request=67
 ```
 
