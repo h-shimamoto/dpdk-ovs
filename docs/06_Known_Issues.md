@@ -53,11 +53,26 @@ ______
 
     For example, `dpdk_nic_bind.py -b igb_uio <PCI ID of NIC port>` binds the NIC to the Intel® DPDK igb_uio driver.
 
-* Issue present in some kernels (3.15.7 to 3.16.6 inclusive): When an RFC2544 throughput test is run on the setup described in [vHost Sample Configurations][doc-vhost-setup], using 2 guests, it shows excessive packet loss, even at low throughput. This degradation in performance was introduced on these kernels by the commit ```6daca6a55794bd21f51a643c064417e56f581d31```.
+* Issue present in some kernels (3.15.7 to 3.16.6 inclusive):
 
- There are two potential solutions for this issue:
-  * Configuring your setup with ports which interact together (such as PHY RX and vHost TX) on the same core should improve RFC2544 throughput.
-  * Upgrading the kernel to 3.16.7 may help but is not guaranteed to resolve the issue. A fresh OS install with either the 3.16.7 kernel or the 3.15.6 kernel is best. Downgrading from a kernel where the issue is present has not been proven as a solution.
+    When an RFC2544 throughput test is run on the setup described in [vHost Sample Configurations][doc-vhost-setup], using 2 guests, it shows excessive packet loss, even at low throughput. This degradation in performance was introduced on these kernels by the commit ```6daca6a55794bd21f51a643c064417e56f581d31```. There are two potential solutions for this issue. The first is to configure your setup with ports which interact together (such as PHY RX and vHost TX) on the same core, this should improve RFC2544 throughput. A second solution is to upgrade the kernel to 3.16.7. This may help but is not guaranteed to resolve the issue. A fresh OS install with either the 3.16.7 kernel or the 3.15.6 kernel is best.
+
+* Non IP packets not handled in the datapath:
+
+    By design, flow keys are not initialized in the datapath for non IP packets. Instead an upcall is created and non IP packets are handled at the vswitchd level (slowpath).
+
+* False statistics reported for failed packet transmissions:
+
+    Statistics for packets will be increased before a packet transmit is handled. If the packet transmit subsequently fails, the transmit statistic will still increment. This is related to the order in which rte_pipeline_port_out_packet_insert executes the transmit actions.
+
+* QEMU memory size affects IVSHM guest access method:
+
+    When using the IVSHM guest access method memory can be shared incorrectly to the guest. This has been observed when using the ATOM platform with 2MB hugpages and where guest memory is greater than 3GB.
+
+* Traffix TX failing for multiple source IPs when used in conjuction with multiple bridges and the NORMAL action:
+
+    This behavior has been observed in the following setup. 2 bridges patched back to back, "br1" and "br2". 1 physical port installed on "br1". 1 US-vHost port installed on "br2". Two flows are installed on "br1", the first flow executes the NORMAL action. It should route ingress traffic from the physical device to "br2". The second flow should modify the vlan on egress traffic before executing the NORMAL action and transmitting from the physical device. Similarly two flows are installed on "br2", the first flow modifies the vlan on an ingress packet received from "br1" and the NORMAL action is executed to forward traffic to the guest via the US-vHost port. The second flow executes the NORMAL action on egress traffic received from the US-vHost port and should forward traffic to "br1". The expected traffic route is to enter "br1" via the physical port. Traffic should be forwarded via the NORMAL action to "br2" where the vlan is modified and forwarded to a guest via the US-vHost port on "br2". Traffic should then be forwarded from the guest back through the US-vHost device to "br2", forwarded via the NORMAL action back to "br1" and finally the vlan modified to be to its original value before being transmitted back out the physical device on "br1". Using a single source and destination address for IP traffic this works as expected. However if multiple source addresses are used, it has been observed that traffic does not transmit from the physical device on "br1" as expected.
+
 ______
 
 ## Intel® DPDK vSwitch Sample Guest Application
