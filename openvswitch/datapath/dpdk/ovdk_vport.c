@@ -60,6 +60,7 @@
 #include "ovdk_vport_bridge.h"
 #include "ovdk_flow.h"
 #include "ovdk_vport_vhost.h"
+#include "ovdk_vport_memnic.h"
 #include "ovdk_vport_types.h"
 #include "ovdk_virtio-net.h"
 #include "ovdk_args.h"
@@ -153,6 +154,11 @@ ovdk_vport_init(void)
 	for (i = OVDK_VPORT_TYPE_VETH; i < OVDK_VPORT_TYPE_VETH + OVDK_MAX_VETHS; i++)
 		ovdk_vport_veth_port_init(&vport_info[i]);
 	RTE_LOG(INFO, APP, "Initialized %d veths ports\n", OVDK_MAX_VETHS);
+
+	RTE_LOG(INFO, APP, "Initializing MEMNIC ports\n");
+	for (i = OVDK_VPORT_TYPE_MEMNIC; i < OVDK_VPORT_TYPE_MEMNIC + OVDK_MAX_MEMNICS; i++)
+		ovdk_vport_memnic_port_init(&vport_info[i]);
+	RTE_LOG(INFO, APP, "Initialized %d MEMNIC ports\n", OVDK_MAX_MEMNICS);
 
 	for (i = 0; i < OVDK_MAX_VPORTS; i++) {
 		/*

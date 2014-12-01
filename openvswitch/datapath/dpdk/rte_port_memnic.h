@@ -1,8 +1,7 @@
 /*-
  *   BSD LICENSE
  *
- *   Copyright(c) 2010-2014 Intel Corporation. All rights reserved.
- *   All rights reserved.
+ *   Copyright(c) 2014 NEC All rights reserved.
  *
  *   Redistribution and use in source and binary forms, with or without
  *   modification, are permitted provided that the following conditions
@@ -14,9 +13,6 @@
  *       notice, this list of conditions and the following disclaimer in
  *       the documentation and/or other materials provided with the
  *       distribution.
- *     * Neither the name of Intel Corporation nor the names of its
- *       contributors may be used to endorse or promote products derived
- *       from this software without specific prior written permission.
  *
  *   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  *   "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -32,29 +28,52 @@
  *
  */
 
-#ifndef __OVDK_VPORT_TYPES_H_
-#define __OVDK_VPORT_TYPES_H_
+#ifndef __INCLUDE_RTE_PORT_MEMNIC_H__
+#define __INCLUDE_RTE_PORT_MEMNIC_H__
 
-#include "ovdk_config.h"
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#define OVDK_MZ_VPORT_INFO       "OVDK_vport_info"
-#define OVDK_MAX_VPORT_NAMESIZE  (32)
+#include <rte_port.h>
 
-enum ovdk_vport_type {
-	/*
-	 * Order is important here. PHY Ports must start at 0 as they
-	 * correspond to the DPDK NIC port numbers
-	 */
-	OVDK_VPORT_TYPE_PHY = 0,
-	OVDK_VPORT_TYPE_CLIENT = OVDK_VPORT_TYPE_PHY + OVDK_MAX_PHYPORTS,
-	OVDK_VPORT_TYPE_VHOST = OVDK_VPORT_TYPE_CLIENT + OVDK_MAX_CLIENTS,
-	OVDK_VPORT_TYPE_KNI = OVDK_VPORT_TYPE_VHOST + OVDK_MAX_VHOSTS,
-	OVDK_VPORT_TYPE_BRIDGE = OVDK_VPORT_TYPE_KNI + OVDK_MAX_KNIS,
-	OVDK_VPORT_TYPE_VETH = OVDK_VPORT_TYPE_BRIDGE + OVDK_MAX_BRIDGES,
-	OVDK_VPORT_TYPE_MEMNIC = OVDK_VPORT_TYPE_VETH + OVDK_MAX_VETHS,
-	OVDK_VPORT_TYPE_VSWITCHD = OVDK_VPORT_TYPE_MEMNIC + OVDK_MAX_MEMNICS,
-	OVDK_VPORT_TYPE_DISABLED,
-	OVDK_VPORT_TYPE_MAX,
+#include "memnic.h"
+
+struct rte_port_memnic_common_params;
+
+typedef int (*rte_port_memnic_alloc_t)(struct rte_port_memnic_common_params *p);
+typedef int (*rte_port_memnic_free_t)(struct rte_port_memnic_common_params *p);
+
+struct rte_port_memnic_device {
+	struct memnic_area *memnic;
+	struct rte_mempool *mp;
+	int up_idx, down_idx;
+	uint32_t framesz;
 };
 
-#endif /* __OVDK_VPORT_TYPES_H_ */
+struct rte_port_memnic_common_params {
+	const char *name;
+	rte_port_memnic_alloc_t f_alloc;
+	rte_port_memnic_free_t f_free;
+	struct rte_port_memnic_device *mdev;
+};
+
+struct rte_port_memnic_reader_params {
+	struct rte_port_memnic_common_params param;
+};
+
+extern struct rte_port_in_ops rte_port_memnic_reader_ops;
+
+struct rte_port_memnic_writer_params {
+	struct rte_port_memnic_common_params param;
+	struct rte_mbuf *tx_buf[RTE_PORT_IN_BURST_SIZE_MAX];
+	uint32_t tx_buf_count;
+};
+
+extern struct rte_port_out_ops rte_port_memnic_writer_ops;
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* __INCLUDE_RTE_PORT_MEMNIC_H__ */

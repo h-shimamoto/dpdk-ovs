@@ -50,6 +50,7 @@
 #include "rte_port_vhost.h"
 #include "rte_port_ivshm.h"
 #include "rte_port_veth.h"
+#include "rte_port_memnic.h"
 
 #include "ovdk_vport_types.h"
 #include "ovdk_vport_states.h"
@@ -108,6 +109,12 @@ struct vport_bridge {
 	struct rte_port_source_params port_reader_source_params;
 };
 
+struct vport_memnic {
+	struct rte_port_memnic_writer_params port_writer_memnic_params[RTE_MAX_LCORE];
+	struct rte_port_memnic_reader_params port_reader_memnic_params;
+	struct rte_port_memnic_device mdev;
+};
+
 struct vport_info {
 	enum ovdk_vport_type __rte_cache_aligned type;
 	enum ovdk_vport_state __rte_cache_aligned state;
@@ -120,6 +127,7 @@ struct vport_info {
 		struct vport_veth veth;
 		struct vport_vhost vhost;
 		struct vport_bridge bridge;
+		struct vport_memnic memnic;
 	};
 	struct rte_pipeline_port_in_params port_in_params;
 	struct rte_pipeline_port_out_params port_out_params[RTE_MAX_LCORE];
